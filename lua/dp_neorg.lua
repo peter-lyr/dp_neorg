@@ -48,6 +48,15 @@ require 'neorg'.setup {
   },
 }
 
+function M.toggle_concealer_0_2()
+  if vim.wo.conceallevel == 0 then
+    vim.wo.conceallevel = 2
+  else
+    vim.wo.conceallevel = 0
+  end
+  B.echo('vim.wo.conceallevel: %s', vim.wo.conceallevel)
+end
+
 require 'which-key'.register {
   ['<leader>nw'] = { '<cmd>Neorg workspace work<cr>', 'Neorg workspace work', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nl'] = { '<cmd>Neorg workspace life<cr>', 'Neorg workspace life', mode = { 'n', 'v', }, silent = true, },
@@ -59,3 +68,4 @@ require 'which-key'.register {
 }
 
 return M
+
