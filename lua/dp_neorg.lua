@@ -11,13 +11,13 @@ if B.check_plugins {
   return
 end
 
-local M  = {}
+local M             = {}
 
-M.source = B.getsource(debug.getinfo(1)['source'])
-M.lua    = B.getlua(M.source)
+M.source            = B.getsource(debug.getinfo(1)['source'])
+M.lua               = B.getlua(M.source)
 
 vim.wo.conceallevel = 2
-vim.wo.foldlevel = 99
+vim.wo.foldlevel    = 99
 
 require 'neorg'.setup {
   load = {
@@ -32,7 +32,7 @@ require 'neorg'.setup {
       },
     },
     ['core.ui'] = {},
-    ['core.ui.calendar'] = {},               -- 解决中文乱码问题需要将Windows display language改为英文(美国)
+    ['core.ui.calendar'] = {}, -- 解决中文乱码问题需要将Windows display language改为英文(美国)
     ['core.tempus'] = {},
     ['core.dirman'] = {
       config = {
