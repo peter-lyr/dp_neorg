@@ -31,6 +31,12 @@ require 'neorg'.setup {
         timezone = 'implicit-local',
       },
     },
+    ["core.export"] = {},
+    ["core.export.markdown"] = {
+      config = {
+        extensions = "all",
+      },
+    },
     ['core.ui'] = {},
     ['core.ui.calendar'] = {}, -- 解决中文乱码问题需要将Windows display language改为英文(美国)
     ['core.tempus'] = {},
