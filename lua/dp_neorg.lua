@@ -46,6 +46,7 @@ require 'neorg'.setup {
           notes = DepeiRepos .. '\\notes',
           work = DepeiRepos .. '\\notes\\.work',
           life = DepeiRepos .. '\\notes\\.life',
+          learn = DepeiRepos .. '\\notes\\.learn',
         },
         default_workspace = 'notes',
       },
@@ -66,6 +67,7 @@ end
 require 'which-key'.register {
   ['<leader>nw'] = { '<cmd>Neorg workspace work<cr>', 'Neorg workspace work', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nl'] = { '<cmd>Neorg workspace life<cr>', 'Neorg workspace life', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>nh'] = { '<cmd>Neorg workspace learn<cr>', 'Neorg workspace learn', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nn'] = { '<cmd>Neorg workspace notes<cr>', 'Neorg workspace notes', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nf'] = { '<cmd>Telescope neorg insert_file_link<cr>', 'Neorg insert_file_link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nt'] = { '<cmd>Neorg journal today<cr>', 'Neorg journal today', mode = { 'n', 'v', }, silent = true, },
