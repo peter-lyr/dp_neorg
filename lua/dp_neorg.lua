@@ -59,12 +59,12 @@ require 'neorg'.setup {
 }
 
 function M.toggle_concealer_0_2()
-  if vim.wo.conceallevel == 0 then
-    vim.wo.conceallevel = 2
+  if vim.o.conceallevel == 0 then
+    vim.o.conceallevel = 2
   else
-    vim.wo.conceallevel = 0
+    vim.o.conceallevel = 0
   end
-  B.echo('vim.wo.conceallevel: %s', vim.wo.conceallevel)
+  B.echo('vim.o.conceallevel: %s', vim.o.conceallevel)
 end
 
 function M.quicklook_do(file)
