@@ -16,8 +16,8 @@ local M               = {}
 M.source              = B.getsource(debug.getinfo(1)['source'])
 M.lua                 = B.getlua(M.source)
 
-vim.wo.conceallevel   = 2
-vim.wo.foldlevel      = 99
+vim.o.conceallevel    = 0
+vim.o.foldlevel       = 99
 
 M.last_quicklook_file = ''
 M.quicklook_filetypes = { 'jpg', 'png', 'pdf', 'html', 'docx', }
@@ -82,9 +82,9 @@ function M.quicklook()
   if B.is(cfile) and B.file_exists(cfile) and vim.fn.filereadable(cfile) == 1 and M.last_quicklook_file ~= cfile then
     M.quicklook_do(cfile)
     M.last_quicklook_file = cfile
-  -- else
-  --   M.quicklook_do(M.last_quicklook_file)
-  --   M.last_quicklook_file = ''
+    -- else
+    --   M.quicklook_do(M.last_quicklook_file)
+    --   M.last_quicklook_file = ''
   end
 end
 
