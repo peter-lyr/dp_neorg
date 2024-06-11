@@ -46,12 +46,11 @@ require 'neorg'.setup {
     ['core.dirman'] = {
       config = {
         workspaces = {
-          notes = DepeiRepos .. '\\notes',
-          work = DepeiRepos .. '\\notes\\.work',
-          life = DepeiRepos .. '\\notes\\.life',
-          learn = DepeiRepos .. '\\notes\\.learn',
+          work = DepeiRepos .. '\\work',
+          life = DepeiRepos .. '\\life',
+          study = DepeiRepos .. '\\study',
         },
-        default_workspace = 'notes',
+        default_workspace = 'work',
       },
     },
     ['core.integrations.telescope'] = {},
@@ -97,12 +96,14 @@ B.aucmd({ 'CursorMoved', 'CursorMovedI', }, 'neorg.CursorMoved', {
 require 'which-key'.register {
   ['<leader>nw'] = { '<cmd>Neorg workspace work<cr>', 'Neorg workspace work', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nl'] = { '<cmd>Neorg workspace life<cr>', 'Neorg workspace life', mode = { 'n', 'v', }, silent = true, },
-  ['<leader>nh'] = { '<cmd>Neorg workspace learn<cr>', 'Neorg workspace learn', mode = { 'n', 'v', }, silent = true, },
-  ['<leader>nn'] = { '<cmd>Neorg workspace notes<cr>', 'Neorg workspace notes', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>ns'] = { '<cmd>Neorg workspace study<cr>', 'Neorg workspace study', mode = { 'n', 'v', }, silent = true, },
+
   ['<leader>nf'] = { '<cmd>Telescope neorg insert_file_link<cr>', 'Neorg insert_file_link', mode = { 'n', 'v', }, silent = true, },
+
   ['<leader>nt'] = { '<cmd>Neorg journal today<cr>', 'Neorg journal today', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ny'] = { '<cmd>Neorg journal yesterday<cr>', 'Neorg journal yesterday', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nm'] = { '<cmd>Neorg journal tomorrow<cr>', 'Neorg journal tomorrow', mode = { 'n', 'v', }, silent = true, },
+
   ['<leader>ne'] = { '<cmd>Neorg mode traverse-heading<cr>', 'Neorg mode traverse-heading', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ni'] = { '<cmd>Neorg mode traverse-link<cr>', 'Neorg mode traverse-link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
