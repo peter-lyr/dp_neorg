@@ -11,13 +11,16 @@ if B.check_plugins {
   return
 end
 
-local M             = {}
+local M               = {}
 
-M.source            = B.getsource(debug.getinfo(1)['source'])
-M.lua               = B.getlua(M.source)
+M.source              = B.getsource(debug.getinfo(1)['source'])
+M.lua                 = B.getlua(M.source)
 
-vim.wo.conceallevel = 2
-vim.wo.foldlevel    = 99
+vim.wo.conceallevel   = 2
+vim.wo.foldlevel      = 99
+
+M.last_quicklook_file = ''
+M.quicklook_filetypes = { 'jpg', 'png', 'pdf', 'html', 'docx', }
 
 require 'neorg'.setup {
   load = {
@@ -31,10 +34,10 @@ require 'neorg'.setup {
         timezone = 'implicit-local',
       },
     },
-    ["core.export"] = {},
-    ["core.export.markdown"] = {
+    ['core.export'] = {},
+    ['core.export.markdown'] = {
       config = {
-        extensions = "all",
+        extensions = 'all',
       },
     },
     ['core.ui'] = {},
@@ -64,6 +67,33 @@ function M.toggle_concealer_0_2()
   B.echo('vim.wo.conceallevel: %s', vim.wo.conceallevel)
 end
 
+function M.quicklook_do(file)
+  if not file then
+    file = B.buf_get_name()
+  end
+  if not B.is_file_in_filetypes(file, M.quicklook_filetypes) then
+    return
+  end
+  require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
+end
+
+function M.quicklook()
+  local cfile = B.rep(B.get_cfile())
+  if B.is(cfile) and B.file_exists(cfile) and vim.fn.filereadable(cfile) == 1 and M.last_quicklook_file ~= cfile then
+    M.quicklook_do(cfile)
+    M.last_quicklook_file = cfile
+  -- else
+  --   M.quicklook_do(M.last_quicklook_file)
+  --   M.last_quicklook_file = ''
+  end
+end
+
+B.aucmd({ 'CursorMoved', 'CursorMovedI', }, 'neorg.CursorMoved', {
+  callback = function()
+    M.quicklook()
+  end,
+})
+
 require 'which-key'.register {
   ['<leader>nw'] = { '<cmd>Neorg workspace work<cr>', 'Neorg workspace work', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nl'] = { '<cmd>Neorg workspace life<cr>', 'Neorg workspace life', mode = { 'n', 'v', }, silent = true, },
@@ -79,4 +109,3 @@ require 'which-key'.register {
 }
 
 return M
-
