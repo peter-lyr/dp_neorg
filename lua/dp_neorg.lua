@@ -66,6 +66,16 @@ function M.toggle_concealer_0_2()
   B.echo('vim.o.conceallevel: %s', vim.o.conceallevel)
 end
 
+function M.quicklook_do_do(file)
+  if not file then
+    file = B.rep(B.get_cfile())
+  end
+  if not file then
+    file = B.buf_get_name()
+  end
+  require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
+end
+
 function M.quicklook_do(file)
   if not file then
     file = B.buf_get_name()
@@ -73,7 +83,7 @@ function M.quicklook_do(file)
   if not B.is_file_in_filetypes(file, M.quicklook_filetypes) then
     return
   end
-  require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
+  M.quicklook_do_do(file)
 end
 
 function M.quicklook()
@@ -108,6 +118,7 @@ require 'which-key'.register {
   ['<leader>ne'] = { '<cmd>Neorg mode traverse-heading<cr>', 'Neorg mode traverse-heading', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ni'] = { '<cmd>Neorg mode traverse-link<cr>', 'Neorg mode traverse-link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>ndq'] = { function() M.quicklook_do_do() end, 'quicklook_do_do', mode = { 'n', 'v', }, silent = true, },
 }
 
 return M
