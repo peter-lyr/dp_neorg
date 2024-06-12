@@ -132,7 +132,7 @@ B.aucmd({ 'BufReadPost', }, 'neorg.BufReadPost', {
     if M.start_from_norg == 1 then
       if not M.is_in_norg_fts(ev.file) then
         B.system_run('start silent', ev.file)
-        vim.cmd(ev.buf .. 'bw!')
+        vim.cmd('Bwipeout' .. ev.buf)
       end
     end
   end,
