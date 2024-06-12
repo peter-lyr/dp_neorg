@@ -22,6 +22,12 @@ vim.o.foldlevel       = 99
 M.last_quicklook_file = ''
 M.quicklook_filetypes = { 'jpg', 'png', 'pdf', 'html', 'docx', }
 
+M.last_file           = ''
+
+M.NORG_EXTS           = { 'norg', }
+
+M.start_from_norg     = 0
+
 require 'neorg'.setup {
   load = {
     ['core.defaults'] = {},
@@ -97,9 +103,44 @@ function M.quicklook()
   end
 end
 
+function M.is_in_norg_fts(file)
+  return B.is_file_in_extensions(file, M.NORG_EXTS)
+end
+
 B.aucmd({ 'CursorMoved', 'CursorMovedI', }, 'neorg.CursorMoved', {
   callback = function()
     M.quicklook()
+  end,
+})
+
+B.aucmd({ 'BufReadPre', }, 'neorg.BufReadPre', {
+  callback = function()
+    M.start_from_norg = 0
+    if B.is(M.last_file) then
+      if M.is_in_norg_fts(M.last_file) then
+        M.start_from_norg = 1
+      end
+    end
+  end,
+})
+
+B.aucmd({ 'BufReadPost', }, 'neorg.BufReadPost', {
+  callback = function(ev)
+    if M.start_from_norg == 1 then
+      if not M.is_in_norg_fts(ev.file) then
+        B.system_run('start silent', ev.file)
+        vim.cmd(ev.buf .. 'bw!')
+      end
+    end
+  end,
+})
+
+B.aucmd({ 'BufEnter', }, 'neorg.BufEnter', {
+  callback = function(ev)
+    M.last_file = B.rep(ev.file)
+    if not B.is_file(M.last_file) then
+      M.last_file = ''
+    end
   end,
 })
 
