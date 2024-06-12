@@ -16,7 +16,7 @@ local M               = {}
 M.source              = B.getsource(debug.getinfo(1)['source'])
 M.lua                 = B.getlua(M.source)
 
-vim.o.conceallevel    = 0
+vim.o.conceallevel    = 2
 vim.o.foldlevel       = 99
 
 M.last_quicklook_file = ''
