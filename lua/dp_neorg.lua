@@ -79,6 +79,9 @@ function M.quicklook_do_do(file)
   if not file then
     file = B.buf_get_name()
   end
+  if not B.is_file(file) then
+    return
+  end
   require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
 end
 
