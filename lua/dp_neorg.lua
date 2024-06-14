@@ -82,7 +82,10 @@ function M.quicklook_do_do(file)
   if not B.is_file(file) then
     return
   end
-  require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
+  if M.last_quicklook_file ~= file then
+    M.last_quicklook_file = file
+    require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
+  end
 end
 
 function M.quicklook_do(file)
@@ -97,9 +100,8 @@ end
 
 function M.quicklook()
   local cfile = B.rep(B.get_cfile())
-  if B.is(cfile) and B.file_exists(cfile) and vim.fn.filereadable(cfile) == 1 and M.last_quicklook_file ~= cfile then
+  if B.is(cfile) and B.file_exists(cfile) and vim.fn.filereadable(cfile) == 1 then
     M.quicklook_do(cfile)
-    M.last_quicklook_file = cfile
     -- else
     --   M.quicklook_do(M.last_quicklook_file)
     --   M.last_quicklook_file = ''
