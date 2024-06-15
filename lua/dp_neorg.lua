@@ -215,6 +215,8 @@ function M.yank_rb_to_wxwork()
     if title and text then
       para = string.format('%d. %s->%s', cnt, title, text)
       cnt = cnt + 1
+    else
+      para = vim.fn.trim(para, '-周1234567一二三四五六日七')
     end
     paragraph_new[#paragraph_new + 1] = para
   end
