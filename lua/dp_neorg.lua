@@ -171,13 +171,13 @@ function M.create_norg_file_and_open_do(arr)
 end
 
 function M.create_norg_file_and_open()
-  local cWORD = vim.fn.expand('<cWORD>')
+  local cWORD = vim.fn.expand '<cWORD>'
   if string.match(cWORD, ':}%[') then
-    B.notify_info("已是norg文件链接")
+    B.notify_info '已是norg文件链接'
     return
   end
   if not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*') then
-    B.notify_info(cWORD .. " not match: xx,yy,zz")
+    B.notify_info(cWORD .. ' not match: xx,yy,zz')
     return
   end
   cWORD = vim.split(cWORD, '->')[1]
@@ -201,6 +201,28 @@ function M.create_norg_file_and_open()
   M.create_norg_file_and_open_do { 'journal', year, month, day .. '-' .. cWORD, }
 end
 
+function M.yank_rb_to_wxwork()
+  local paragraph = B.get_paragraph()
+  local paragraph_new = {}
+  local cnt = 1
+  for _, para in ipairs(paragraph) do
+    para = vim.fn.trim(para, '* -~')
+    local title = string.match(para, '%d+%-([^,]+,[^,]+,[^:]+):}')
+    if not title then
+      title = string.match(para, '%([^,]+,[^,]+,[^:]+)%->')
+    end
+    local text = string.match(para, '%->(.+)')
+    if title and text then
+      para = string.format('%d. %s->%s', cnt, title, text)
+      cnt = cnt + 1
+    end
+    paragraph_new[#paragraph_new + 1] = para
+  end
+  local lines = vim.fn.join(paragraph_new, '\n')
+  vim.fn.setreg('+', lines)
+  B.notify_info { 'copied to +', lines, }
+end
+
 require 'which-key'.register {
   ['<leader>nw'] = { '<cmd>Neorg workspace work<cr>', 'Neorg workspace work', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nl'] = { '<cmd>Neorg workspace life<cr>', 'Neorg workspace life', mode = { 'n', 'v', }, silent = true, },
@@ -218,6 +240,7 @@ require 'which-key'.register {
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ndq'] = { function() M.quicklook_do_do() end, 'quicklook_do_do', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>n<tab>'] = { function() M.yank_rb_to_wxwork() end, 'yank_rb_to_wxwork', mode = { 'n', 'v', }, silent = true, },
 }
 
 return M
