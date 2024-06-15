@@ -168,7 +168,33 @@ function M.create_norg_file_and_open_do(arr)
 end
 
 function M.create_norg_file_and_open()
-  M.create_norg_file_and_open_do { 'journal', '2024', '06', '15-sksdldslsd', }
+  local cWORD = vim.fn.expand('<cWORD>')
+  if string.match(cWORD, ':}%[') then
+    B.notify_info("已是norg文件链接")
+    return
+  end
+  if not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*') then
+    B.notify_info(cWORD .. " not match: xx,yy,zz")
+    return
+  end
+  cWORD = vim.split(cWORD, '->')[1]
+  local paragraph = B.get_paragraph()
+  local patt = '(20[%d][%d]%-[01][%d]%-[0123][%d])'
+  local date = ''
+  local year, month, day
+  for _, line in ipairs(paragraph) do
+    local res = string.match(line, patt)
+    if res then
+      date = res
+      break
+    end
+  end
+  if B.is(date) then
+    year, month, day = unpack(vim.split(date, '-'))
+  else
+    year, month, day = vim.fn.strftime '%Y', vim.fn.strftime '%m', vim.fn.strftime '%d'
+  end
+  M.create_norg_file_and_open_do { 'journal', year, month, day .. '-' .. cWORD, }
 end
 
 require 'which-key'.register {
