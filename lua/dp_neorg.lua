@@ -194,6 +194,7 @@ function M.create_norg_file_and_open()
   else
     year, month, day = vim.fn.strftime '%Y', vim.fn.strftime '%m', vim.fn.strftime '%d'
   end
+  B.cmd('.s/%s/%s', cWORD, string.format('{:$\\/journal\\\\%s\\\\%s\\\\%s-%s:}[%s]', year, month, day, cWORD, cWORD))
   M.create_norg_file_and_open_do { 'journal', year, month, day .. '-' .. cWORD, }
 end
 
