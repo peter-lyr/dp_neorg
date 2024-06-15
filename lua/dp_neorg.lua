@@ -147,6 +147,30 @@ B.aucmd({ 'BufEnter', }, 'neorg.BufEnter', {
   end,
 })
 
+function M.create_norg_file_and_open_do(arr)
+  local dirman = require 'neorg'.modules.get_module 'core.dirman'
+
+  local workspace_match = dirman.get_workspace_match()
+  print('workspace_match:', workspace_match)
+
+  -- local current_workspace = dirman.get_current_workspace()
+  -- print("vim.inspect(vim.tbl_keys(current_workspace)):", vim.inspect(vim.tbl_keys(current_workspace)))
+  -- print("vim.inspect(current_workspace):", vim.inspect(current_workspace))
+
+  -- local workspaces = dirman.get_workspaces()
+  -- print("vim.inspect(vim.tbl_keys(workspaces)):", vim.inspect(vim.tbl_keys(workspaces)))
+
+  dirman.create_file(vim.fn.join(arr, '/'), workspace_match, {
+    no_open  = false, -- open file after creation?
+    force    = false, -- overwrite file if exists
+    metadata = {},    -- key-value table for metadata fields
+  })
+end
+
+function M.create_norg_file_and_open()
+  M.create_norg_file_and_open_do { 'journal', '2024', '06', '15-sksdldslsd', }
+end
+
 require 'which-key'.register {
   ['<leader>nw'] = { '<cmd>Neorg workspace work<cr>', 'Neorg workspace work', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nl'] = { '<cmd>Neorg workspace life<cr>', 'Neorg workspace life', mode = { 'n', 'v', }, silent = true, },
@@ -163,6 +187,7 @@ require 'which-key'.register {
   ['<leader>ni'] = { '<cmd>Neorg mode traverse-link<cr>', 'Neorg mode traverse-link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ndq'] = { function() M.quicklook_do_do() end, 'quicklook_do_do', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
 }
 
 return M
