@@ -152,34 +152,15 @@ B.aucmd({ 'BufEnter', }, 'neorg.BufEnter', {
 
 function M.create_norg_file_and_open_do(arr)
   local dirman = require 'neorg'.modules.get_module 'core.dirman'
-
   local workspace_match = dirman.get_workspace_match()
-  print('workspace_match:', workspace_match)
-
-  -- local current_workspace = dirman.get_current_workspace()
-  -- print("vim.inspect(vim.tbl_keys(current_workspace)):", vim.inspect(vim.tbl_keys(current_workspace)))
-  -- print("vim.inspect(current_workspace):", vim.inspect(current_workspace))
-
-  -- local workspaces = dirman.get_workspaces()
-  -- print("vim.inspect(vim.tbl_keys(workspaces)):", vim.inspect(vim.tbl_keys(workspaces)))
-
   dirman.create_file(vim.fn.join(arr, '/'), workspace_match, {
-    no_open  = false, -- open file after creation?
-    force    = false, -- overwrite file if exists
-    metadata = {},    -- key-value table for metadata fields
+    no_open  = false,
+    force    = false,
+    metadata = {},
   })
 end
 
-function M.create_norg_file_and_open()
-  local cWORD = vim.fn.expand '<cWORD>'
-  if string.match(cWORD, ':}%[') then
-    B.notify_info '已是norg文件链接'
-    return
-  end
-  if not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*') then
-    B.notify_info(cWORD .. ' not match: xx,yy,zz')
-    return
-  end
+function M.create_work_journal_task_norg(cWORD)
   cWORD = vim.split(cWORD, '->')[1]
   local paragraph = B.get_paragraph()
   local patt = '(20[%d][%d]%-[01][%d]%-[0123][%d])'
@@ -199,6 +180,30 @@ function M.create_norg_file_and_open()
   end
   B.cmd('.s/%s/%s', cWORD, string.format('{:$\\/journal\\\\%s\\\\%s\\\\%s-%s:}[%s]', year, month, day, cWORD, cWORD))
   M.create_norg_file_and_open_do { 'journal', year, month, day .. '-' .. cWORD, }
+end
+
+function M.create_cur_dir_norg(cWORD)
+  local cur_file = B.buf_get_name()
+  local cur_dir = vim.fn.fnamemodify(cur_file, ':h')
+  local new_file = B.get_file(cur_dir, cWORD)
+  local new_file_rel = B.relpath(new_file, vim.loop.cwd())
+  local paths = vim.split(B.rep(new_file_rel), '\\')
+  local temp = string.gsub(new_file_rel, '/', '\\/')
+  B.cmd('.s/%s/%s', cWORD, string.format('{:$\\/%s:}[%s]', temp, cWORD))
+  M.create_norg_file_and_open_do(paths)
+end
+
+function M.create_norg_file_and_open()
+  local cWORD = vim.fn.expand '<cWORD>'
+  if string.match(cWORD, ':}%[') then
+    vim.cmd [[call feedkeys("\<cr>")]]
+    return
+  end
+  if not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*') then
+    M.create_cur_dir_norg(cWORD)
+    return
+  end
+  M.create_work_journal_task_norg(cWORD)
 end
 
 function M.yank_rb_to_wxwork()
