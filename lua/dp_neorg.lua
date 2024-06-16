@@ -218,8 +218,10 @@ function M.de_norg_link()
     end
     if title then
       line = string.format('~ %s', title)
-    else
+    elseif string.match(line, '20[%d][%d]%-[01][%d]%-[0123][%d]计划') then
       line = string.format('* %s', line)
+    else
+      line = string.format('~ %s', line)
     end
     paragraph_new[#paragraph_new + 1] = line
   end
