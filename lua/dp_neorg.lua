@@ -28,6 +28,8 @@ M.NORG_EXTS           = { 'norg', }
 
 M.start_from_norg     = 0
 
+M.patt_plan = '20[%d][%d]%-[01][%d]%-[0123][%d]计划'
+
 require 'neorg'.setup {
   load = {
     ['core.defaults'] = {},
@@ -160,7 +162,7 @@ function M.create_norg_file_and_open_do(arr)
   })
 end
 
-function M.create_work_journal_task_norg(cWORD)
+function M.create_journal_task_norg(cWORD)
   cWORD = vim.split(cWORD, '->')[1]
   local paragraph = B.get_paragraph()
   local patt = '(20[%d][%d]%-[01][%d]%-[0123][%d])'
@@ -193,22 +195,21 @@ function M.create_cur_dir_norg(cWORD)
   M.create_norg_file_and_open_do(paths)
 end
 
-function M.create_norg_file_and_open()
+function M.create_norg_file_and_open(journal)
   local cWORD = vim.fn.expand '<cWORD>'
   if string.match(cWORD, ':}%[') then
     vim.cmd [[call feedkeys("\<cr>")]]
     return
   end
-  if not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*') then
+  if not journal and (not string.match(vim.fn.join(B.get_paragraph(), '\n'), M.patt_plan) or not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*')) then
     M.create_cur_dir_norg(cWORD)
     return
   end
-  M.create_work_journal_task_norg(cWORD)
+  M.create_journal_task_norg(cWORD)
 end
 
 function M.de_norg_link()
-  local paragraph = B.get_paragraph()
-  if string.match(vim.fn.join(paragraph, '\n'), '20[%d][%d]%-[01][%d]%-[0123][%d]计划') then
+  if string.match(vim.fn.join(B.get_paragraph(), '\n'), M.patt_plan) then
     local save_cursor = vim.fn.getpos '.'
     local paragraph_new = {}
     for _, line in ipairs(paragraph) do
@@ -219,7 +220,7 @@ function M.de_norg_link()
       end
       if title then
         line = string.format('~ %s', title)
-      elseif string.match(line, '20[%d][%d]%-[01][%d]%-[0123][%d]计划') then
+      elseif string.match(line, M.patt_plan) then
         line = string.format('* %s', line)
       else
         line = string.format('~ %s', line)
@@ -282,7 +283,8 @@ require 'which-key'.register {
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ndq'] = { function() M.quicklook_do_do() end, 'quicklook_do_do', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
-  ['<leader>n<c-cr>'] = { function() M.de_norg_link() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>n<c-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>n<del>'] = { function() M.de_norg_link() end, 'de_norg_link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<tab>'] = { function() M.yank_rb_to_wxwork() end, 'yank_rb_to_wxwork', mode = { 'n', 'v', }, silent = true, },
 }
 
