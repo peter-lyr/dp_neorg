@@ -6,8 +6,8 @@ local sta, B = pcall(require, 'dp_base')
 if not sta then return print('Dp_base is required!', debug.getinfo(1)['source']) end
 
 if B.check_plugins {
-      'folke/which-key.nvim',
-    } then
+  'folke/which-key.nvim',
+} then
   return
 end
 
@@ -207,28 +207,38 @@ function M.create_norg_file_and_open()
 end
 
 function M.de_norg_link()
-  local save_cursor = vim.fn.getpos '.'
   local paragraph = B.get_paragraph()
-  local paragraph_new = {}
-  for _, line in ipairs(paragraph) do
+  if string.match(vim.fn.join(paragraph, '\n'), '20[%d][%d]%-[01][%d]%-[0123][%d]计划') then
+    local save_cursor = vim.fn.getpos '.'
+    local paragraph_new = {}
+    for _, line in ipairs(paragraph) do
+      line = vim.fn.trim(line, '* -~')
+      local title = string.match(line, '%d+%-([^,]+,[^,]+,[^:]+):}')
+      if not title then
+        title = string.match(line, '%([^,]+,[^,]+,[^:]+)%->')
+      end
+      if title then
+        line = string.format('~ %s', title)
+      elseif string.match(line, '20[%d][%d]%-[01][%d]%-[0123][%d]计划') then
+        line = string.format('* %s', line)
+      else
+        line = string.format('~ %s', line)
+      end
+      paragraph_new[#paragraph_new + 1] = line
+    end
+    B.cmd('norm dipk')
+    vim.fn.append('.', paragraph_new)
+    B.cmd('norm =ap')
+    pcall(vim.fn.setpos, '.', save_cursor)
+  else
+    local line = vim.fn.expand '<cWORD>'
     line = vim.fn.trim(line, '* -~')
-    local title = string.match(line, '%d+%-([^,]+,[^,]+,[^:]+):}')
-    if not title then
-      title = string.match(line, '%([^,]+,[^,]+,[^:]+)%->')
-    end
+    local title = string.match(line, '{[^}]+}%[([^%]]+)%]')
     if title then
-      line = string.format('~ %s', title)
-    elseif string.match(line, '20[%d][%d]%-[01][%d]%-[0123][%d]计划') then
-      line = string.format('* %s', line)
-    else
-      line = string.format('~ %s', line)
+      vim.fn.setline('.', '~ ' .. title)
+      B.cmd("norm ==")
     end
-    paragraph_new[#paragraph_new + 1] = line
   end
-  B.cmd('norm dipk')
-  vim.fn.append('.', paragraph_new)
-  B.cmd('norm =ap')
-  pcall(vim.fn.setpos, '.', save_cursor)
 end
 
 function M.yank_rb_to_wxwork()
