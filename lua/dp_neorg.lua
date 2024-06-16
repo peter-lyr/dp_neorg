@@ -197,6 +197,11 @@ end
 
 function M.create_norg_file_and_open(journal)
   local cWORD = vim.fn.expand '<cWORD>'
+  local res = B.not_allow_in_file_name(cWORD)
+  if res then
+    B.print('not_allow_in_file_name: %s', res)
+    return
+  end
   if string.match(cWORD, ':}%[') then
     vim.cmd [[call feedkeys("\<cr>")]]
     return
