@@ -232,7 +232,7 @@ function M.de_norg_link()
     B.cmd('norm =ap')
     pcall(vim.fn.setpos, '.', save_cursor)
   else
-    local line = vim.fn.expand '<cWORD>'
+    local line = vim.fn.getline '.'
     line = vim.fn.trim(line, '* -~')
     local title = string.match(line, '{[^}]+}%[([^%]]+)%]')
     if title then
