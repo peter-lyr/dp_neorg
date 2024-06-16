@@ -206,24 +206,47 @@ function M.create_norg_file_and_open()
   M.create_work_journal_task_norg(cWORD)
 end
 
+function M.de_norg_link()
+  local save_cursor = vim.fn.getpos '.'
+  local paragraph = B.get_paragraph()
+  local paragraph_new = {}
+  for _, line in ipairs(paragraph) do
+    line = vim.fn.trim(line, '* -~')
+    local title = string.match(line, '%d+%-([^,]+,[^,]+,[^:]+):}')
+    if not title then
+      title = string.match(line, '%([^,]+,[^,]+,[^:]+)%->')
+    end
+    if title then
+      line = string.format('~ %s', title)
+    else
+      line = string.format('* %s', line)
+    end
+    paragraph_new[#paragraph_new + 1] = line
+  end
+  B.cmd('norm dipk')
+  vim.fn.append('.', paragraph_new)
+  B.cmd('norm =ap')
+  pcall(vim.fn.setpos, '.', save_cursor)
+end
+
 function M.yank_rb_to_wxwork()
   local paragraph = B.get_paragraph()
   local paragraph_new = {}
   local cnt = 1
-  for _, para in ipairs(paragraph) do
-    para = vim.fn.trim(para, '* -~')
-    local title = string.match(para, '%d+%-([^,]+,[^,]+,[^:]+):}')
+  for _, line in ipairs(paragraph) do
+    line = vim.fn.trim(line, '* -~')
+    local title = string.match(line, '%d+%-([^,]+,[^,]+,[^:]+):}')
     if not title then
-      title = string.match(para, '%([^,]+,[^,]+,[^:]+)%->')
+      title = string.match(line, '%([^,]+,[^,]+,[^:]+)%->')
     end
-    local text = string.match(para, '%->(.+)')
+    local text = string.match(line, '%->(.+)')
     if title and text then
-      para = string.format('%d. %s->%s', cnt, title, text)
+      line = string.format('%d. %s->%s', cnt, title, text)
       cnt = cnt + 1
     else
-      para = vim.fn.trim(para, '-周1234567一二三四五六日七')
+      line = vim.fn.trim(line, '-周1234567一二三四五六日七')
     end
-    paragraph_new[#paragraph_new + 1] = para
+    paragraph_new[#paragraph_new + 1] = line
   end
   local lines = vim.fn.join(paragraph_new, '\n')
   vim.fn.setreg('+', lines)
@@ -247,6 +270,7 @@ require 'which-key'.register {
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ndq'] = { function() M.quicklook_do_do() end, 'quicklook_do_do', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>n<c-cr>'] = { function() M.de_norg_link() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<tab>'] = { function() M.yank_rb_to_wxwork() end, 'yank_rb_to_wxwork', mode = { 'n', 'v', }, silent = true, },
 }
 
