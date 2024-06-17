@@ -20,7 +20,7 @@ vim.o.conceallevel    = 2
 vim.o.foldlevel       = 99
 
 M.last_quicklook_file = ''
-M.quicklook_filetypes = { 'jpg', 'png', 'pdf', 'html', 'docx', }
+M.quicklook_filetypes = { 'jpg', 'png', }
 
 M.last_file           = ''
 
