@@ -209,7 +209,8 @@ function M.create_norg_file_and_open(journal)
 end
 
 function M.de_norg_link()
-  if string.match(vim.fn.join(B.get_paragraph(), '\n'), M.patt_plan) then
+  local paragraph = B.get_paragraph()
+  if string.match(vim.fn.join(paragraph, '\n'), M.patt_plan) then
     local save_cursor = vim.fn.getpos '.'
     local paragraph_new = {}
     for _, line in ipairs(paragraph) do
