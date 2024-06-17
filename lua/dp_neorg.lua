@@ -258,7 +258,13 @@ function M.yank_rb_to_wxwork()
       line = string.format('%d. %s->%s', cnt, title, text)
       cnt = cnt + 1
     else
-      line = vim.fn.trim(line, '-周1234567一二三四五六日七')
+      local temp = vim.fn.trim(line, '-周1234567一二三四五六日七')
+      if string.match(line, '([^,]+,[^,]+,[^:]+)') then
+        line = tostring(cnt) .. '. ' .. temp
+        cnt = cnt + 1
+      else
+        line = vim.fn.trim(line, temp)
+      end
     end
     paragraph_new[#paragraph_new + 1] = line
   end
