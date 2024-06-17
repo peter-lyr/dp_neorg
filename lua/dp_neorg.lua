@@ -263,7 +263,7 @@ function M.yank_rb_to_wxwork()
         line = tostring(cnt) .. '. ' .. temp
         cnt = cnt + 1
       else
-        line = vim.fn.trim(line, temp)
+        line = temp
       end
     end
     paragraph_new[#paragraph_new + 1] = line
