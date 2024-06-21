@@ -87,7 +87,7 @@ function M.quicklook_do_do(file)
   if M.last_quicklook_file ~= file then
     M.last_quicklook_file = file
     -- require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
-    require 'dp_base'.system_run('start silent', [["Image Eye.exe" -freeze -onlyone %s]], file)
+    require 'dp_base'.system_run('start silent', [["Image Eye.exe" -freeze -onlyone "%s"]], file)
   end
 end
 
