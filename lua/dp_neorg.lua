@@ -6,8 +6,8 @@ local sta, B = pcall(require, 'dp_base')
 if not sta then return print('Dp_base is required!', debug.getinfo(1)['source']) end
 
 if B.check_plugins {
-  'folke/which-key.nvim',
-} then
+      'folke/which-key.nvim',
+    } then
   return
 end
 
@@ -20,7 +20,7 @@ vim.o.conceallevel    = 2
 vim.o.foldlevel       = 99
 
 M.last_quicklook_file = ''
-M.quicklook_filetypes = { 'jpg', 'png', 'pdf', 'html', 'docx', }
+M.quicklook_filetypes = { 'jpg', 'png', }
 
 M.last_file           = ''
 
@@ -28,7 +28,7 @@ M.NORG_EXTS           = { 'norg', }
 
 M.start_from_norg     = 0
 
-M.patt_plan = '20[%d][%d]%-[01][%d]%-[0123][%d]计划'
+M.patt_plan           = '20[%d][%d]%-[01][%d]%-[0123][%d]计划'
 
 require 'neorg'.setup {
   load = {
@@ -62,6 +62,7 @@ require 'neorg'.setup {
       },
     },
     ['core.integrations.telescope'] = {},
+    ['external.integrations.figlet'] = {},
   },
 }
 
@@ -87,7 +88,7 @@ function M.quicklook_do_do(file)
   if M.last_quicklook_file ~= file then
     M.last_quicklook_file = file
     -- require 'dp_base'.system_run('start silent', [[quicklook %s]], file)
-    require 'dp_base'.system_run('start silent', [["Image Eye.exe" -freeze -onlyone %s]], file)
+    require 'dp_base'.system_run('start silent', [["Image Eye.exe" -freeze -onlyone "%s"]], file)
   end
 end
 
@@ -214,7 +215,8 @@ function M.create_norg_file_and_open(journal)
 end
 
 function M.de_norg_link()
-  if string.match(vim.fn.join(B.get_paragraph(), '\n'), M.patt_plan) then
+  local paragraph = B.get_paragraph()
+  if string.match(vim.fn.join(paragraph, '\n'), M.patt_plan) then
     local save_cursor = vim.fn.getpos '.'
     local paragraph_new = {}
     for _, line in ipairs(paragraph) do
@@ -232,9 +234,9 @@ function M.de_norg_link()
       end
       paragraph_new[#paragraph_new + 1] = line
     end
-    B.cmd('norm dipk')
+    B.cmd 'norm dipk'
     vim.fn.append('.', paragraph_new)
-    B.cmd('norm =ap')
+    B.cmd 'norm =ap'
     pcall(vim.fn.setpos, '.', save_cursor)
   else
     local line = vim.fn.getline '.'
@@ -242,7 +244,7 @@ function M.de_norg_link()
     local title = string.match(line, '{[^}]+}%[([^%]]+)%]')
     if title then
       vim.fn.setline('.', '~ ' .. title)
-      B.cmd("norm ==")
+      B.cmd 'norm =='
     end
   end
 end
@@ -262,13 +264,33 @@ function M.yank_rb_to_wxwork()
       line = string.format('%d. %s->%s', cnt, title, text)
       cnt = cnt + 1
     else
-      line = vim.fn.trim(line, '-周1234567一二三四五六日七')
+      local temp = vim.fn.trim(line, '-周一二三四五六日七')
+      if string.match(line, '([^,]+,[^,]+,[^:]+)') then
+        line = tostring(cnt) .. '. ' .. temp
+        cnt = cnt + 1
+      else
+        line = temp
+      end
     end
     paragraph_new[#paragraph_new + 1] = line
   end
   local lines = vim.fn.join(paragraph_new, '\n')
   vim.fn.setreg('+', lines)
   B.notify_info { 'copied to +', lines, }
+end
+
+function M.norg2md(open_preview)
+  if not B.is_file_in_filetypes(nil, 'norg') then
+    return
+  end
+  local dst = vim.fn.fnamemodify(vim.fn.expand '%', ':~:.:r') .. '.md'
+  vim.cmd(string.format('Neorg export to-file %s', string.gsub(dst, ' ', [[\ ]])))
+  vim.schedule(function()
+    vim.cmd.edit(dst)
+    if open_preview then
+      vim.cmd 'MarkdownPreview'
+    end
+  end)
 end
 
 require 'which-key'.register {
@@ -287,6 +309,8 @@ require 'which-key'.register {
   ['<leader>ni'] = { '<cmd>Neorg mode traverse-link<cr>', 'Neorg mode traverse-link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ndq'] = { function() M.quicklook_do_do() end, 'quicklook_do_do', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>nh'] = { name = 'neorg more', },
+  ['<leader>nhe'] = { function() M.norg2md() end, 'norg2md', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<c-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<del>'] = { function() M.de_norg_link() end, 'de_norg_link', mode = { 'n', 'v', }, silent = true, },
