@@ -30,6 +30,8 @@ M.start_from_norg     = 0
 
 M.patt_plan           = '20[%d][%d]%-[01][%d]%-[0123][%d]计划'
 
+M.quicklook_allow     = 1
+
 require 'neorg'.setup {
   load = {
     ['core.defaults'] = {},
@@ -93,6 +95,10 @@ function M.quicklook_do_do(file)
 end
 
 function M.quicklook_do(file)
+  if M.quicklook_allow == 0 then
+    B.echo('M.quicklook_allow: ' .. tostring(M.quicklook_allow))
+    return
+  end
   if not file then
     file = B.buf_get_name()
   end
@@ -110,6 +116,11 @@ function M.quicklook()
     --   M.quicklook_do(M.last_quicklook_file)
     --   M.last_quicklook_file = ''
   end
+end
+
+function M.quicklook_toggle()
+  M.quicklook_allow = 1 - M.quicklook_allow
+  print('M.quicklook_allow: ' .. tostring(M.quicklook_allow))
 end
 
 function M.is_in_norg_fts(file)
@@ -308,8 +319,8 @@ require 'which-key'.register {
   ['<leader>ne'] = { '<cmd>Neorg mode traverse-heading<cr>', 'Neorg mode traverse-heading', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ni'] = { '<cmd>Neorg mode traverse-link<cr>', 'Neorg mode traverse-link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>ng'] = { '<cmd>Neorg mode norg<cr>', 'Neorg mode norg', mode = { 'n', 'v', }, silent = true, },
-  ['<leader>ndq'] = { function() M.quicklook_do_do() end, 'quicklook_do_do', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nh'] = { name = 'neorg more', },
+  ['<leader>nhq'] = { function() M.quicklook_toggle() end, 'quicklook_toggle', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nhe'] = { function() M.norg2md() end, 'norg2md', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<c-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
