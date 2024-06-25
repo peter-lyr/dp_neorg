@@ -277,7 +277,13 @@ function M.yank_rb_to_wxwork()
     else
       local temp = vim.fn.trim(line, '-周一二三四五六日七')
       if string.match(line, '([^,]+,[^,]+,[^:]+)') then
-        line = tostring(cnt) .. '. ' .. temp
+        title = string.match(line, '%[([^,]+,[^,]+,[^%]]+)%]')
+        text = string.match(line, '%->(.+)')
+        if title and text then
+          line = string.format('%d. %s->%s', cnt, title, text)
+        else
+          line = tostring(cnt) .. '. ' .. temp
+        end
         cnt = cnt + 1
       else
         line = temp
