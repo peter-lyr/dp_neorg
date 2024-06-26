@@ -281,6 +281,8 @@ function M.yank_rb_to_wxwork()
         text = string.match(line, '%->(.+)')
         if title and text then
           line = string.format('%d. %s->%s', cnt, title, text)
+        elseif title and not text then
+          line = string.format('%d. %s', cnt, title)
         else
           line = tostring(cnt) .. '. ' .. temp
         end
