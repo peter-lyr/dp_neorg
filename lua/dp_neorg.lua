@@ -234,7 +234,10 @@ function M.de_norg_link()
       line = vim.fn.trim(line, '* -~')
       local title = string.match(line, '%d+%-([^,]+,[^,]+,[^:]+):}')
       if not title then
-        title = string.match(line, '%([^,]+,[^,]+,[^:]+)%->')
+        title = string.match(line, '([^,]+,[^,]+,[^:]+)%->')
+        if not title then
+          title = string.match(line, '%[([^,]+,[^,]+,[^:]+)%]%->')
+        end
       end
       if title then
         line = string.format('~ %s', title)
