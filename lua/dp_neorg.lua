@@ -188,12 +188,16 @@ function M.create_journal_task_norg(cWORD)
     end
   end
   if B.is(date) then
-    year, month, day = unpack(vim.split(date, '-'))
+    year, month, _ = unpack(vim.split(date, '-'))
   else
-    year, month, day = vim.fn.strftime '%Y', vim.fn.strftime '%m', vim.fn.strftime '%d'
+    year, month, _ = vim.fn.strftime '%Y', vim.fn.strftime '%m', vim.fn.strftime '%d'
   end
-  B.cmd('.s/%s/%s', cWORD, string.format('{:$\\/journal\\/%s\\/%s\\/%s-%s:}[%s]', year, month, day, cWORD, cWORD))
-  M.create_norg_file_and_open_do { 'journal', year, month, day .. '-' .. cWORD, }
+  if not M.anchor then
+    B.cmd('.s/%s/%s', cWORD, string.format('[%s]{:$\\/journal\\/%s\\/%s\\/%s:}', cWORD, year, month, cWORD))
+  else
+    vim.fn.append('.', string.format('[%s]{:$\\/journal\\/%s\\/%s\\/%s:}', cWORD, year, month, cWORD))
+  end
+  M.create_norg_file_and_open_do { 'journal', year, month, cWORD, }
 end
 
 function M.create_cur_dir_norg(cWORD)
@@ -209,6 +213,12 @@ end
 
 function M.create_norg_file_and_open(journal)
   local cWORD = vim.fn.expand '<cWORD>'
+  local temp = string.match(cWORD, '%[(.+)%]')
+  M.anchor = nil
+  if temp then
+    M.anchor = 1
+    cWORD = temp
+  end
   local res = B.not_allow_in_file_name(cWORD)
   if res then
     B.print('not_allow_in_file_name: %s', res)
