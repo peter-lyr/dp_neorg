@@ -202,8 +202,8 @@ function M.create_journal_task_norg(cWORD)
   else
     local link = string.format('~ [%s]{:$/journal/%s/%s/%s:}', cWORD, year, month, cWORD)
     local append = 1
-    for _, line in ipairs(B.get_paragraph('$')) do
-      if B.is_in_str('%[' .. cWORD .. '%]', line) then
+    for _, line in ipairs(vim.fn.readfile(B.buf_get_name())) do
+      if B.is_in_str('%[' .. cWORD .. '%]{:', line) then
         append = nil
       end
     end
