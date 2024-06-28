@@ -193,9 +193,21 @@ function M.create_journal_task_norg(cWORD)
     year, month, _ = vim.fn.strftime '%Y', vim.fn.strftime '%m', vim.fn.strftime '%d'
   end
   if not M.anchor then
-    B.cmd('.s/%s/%s', cWORD, string.format('[%s]{:$\\/journal\\/%s\\/%s\\/%s:}', cWORD, year, month, cWORD))
+    B.cmd('.s/%s/%s', cWORD, string.format('[%s]{:$/journal/%s/%s/%s:}', cWORD, year, month, cWORD))
   else
-    vim.fn.append('.', string.format('[%s]{:$\\/journal\\/%s\\/%s\\/%s:}', cWORD, year, month, cWORD))
+    local link = string.format('~ [%s]{:$/journal/%s/%s/%s:}', cWORD, year, month, cWORD)
+    local append = 1
+    for _, line in ipairs(B.get_paragraph('$')) do
+      if B.is_in_str('[' .. cWORD .. ']', line) then
+        append = nil
+      end
+    end
+    if append then
+      vim.fn.append('$', link)
+      local save_cursor = vim.fn.getpos '.'
+      vim.cmd 'norm gg=G'
+      pcall(vim.fn.setpos, '.', save_cursor)
+    end
   end
   M.create_norg_file_and_open_do { 'journal', year, month, cWORD, }
 end
