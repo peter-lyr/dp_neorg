@@ -6,8 +6,8 @@ local sta, B = pcall(require, 'dp_base')
 if not sta then return print('Dp_base is required!', debug.getinfo(1)['source']) end
 
 if B.check_plugins {
-      'folke/which-key.nvim',
-    } then
+  'folke/which-key.nvim',
+} then
   return
 end
 
@@ -328,6 +328,77 @@ function M.yank_rb_to_wxwork()
   B.notify_info { 'copied to +', lines, }
 end
 
+-- function M.get_near_bracket_text_do(text)
+-- end
+
+function M.get_one_or_nil(text)
+  local norg = B.get_text_in_bracket(text)
+  if norg then
+    -- NOTE: 这里也可能有多个
+    -- 一个则直接返回
+    local cnt = 0
+    for _ in string.gmatch(text, '%[([^%]]+)%]') do
+      cnt = cnt + 1
+    end
+    if cnt == 1 then
+      return norg
+    end
+  end
+end
+
+function M.get_near_bracket_text()
+  local cWORD = vim.fn.expand '<cWORD>'
+  local norg = M.get_one_or_nil(cWORD)
+  if norg then
+    return norg
+  end
+  local line = vim.fn.getline '.'
+  local line_table = B.string_split_char_to_table(line)
+  local cur_col = vim.fn.getcurpos()[3]
+  local cur_index = B.get_char_index_of_arr(cur_col, line_table)
+  local temp = ''
+  for i, char in ipairs(line_table) do
+    if i >= cur_index then
+      temp = temp .. char
+    end
+  end
+  norg = M.get_one_or_nil(temp)
+  if norg then
+    return norg
+  end
+  temp = ''
+  local left_index = 0
+  for i, char in ipairs(line_table) do
+    if i < cur_index and char == '[' then
+      left_index = i
+    end
+  end
+  local right_index = 0
+  for i, char in ipairs(line_table) do
+    if i >= left_index and char == ']' then
+      right_index = i
+      break
+    end
+  end
+  for i, char in ipairs(line_table) do
+    if i >= left_index and i <= right_index then
+      temp = temp .. char
+    end
+  end
+  norg = M.get_one_or_nil(temp)
+  if norg then
+    return norg
+  end
+end
+
+function M.create_or_jump()
+  vim.cmd 'mes clear'
+  M.get_near_bracket_text()
+  B.set_timeout(100, function()
+    vim.cmd [[call feedkeys(":\<c-u>mes\<cr>")]]
+  end)
+end
+
 function M.norg2md(open_preview)
   if not B.is_file_in_filetypes(nil, 'norg') then
     return
@@ -365,6 +436,7 @@ require 'which-key'.register {
   ['<s-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<del>'] = { function() M.de_norg_link() end, 'de_norg_link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<tab>'] = { function() M.yank_rb_to_wxwork() end, 'yank_rb_to_wxwork', mode = { 'n', 'v', }, silent = true, },
+  ['<c-;>'] = { function() M.create_or_jump() end, 'create_or_jump', mode = { 'n', 'v', }, silent = true, },
 }
 
 return M
