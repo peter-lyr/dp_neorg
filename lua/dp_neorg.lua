@@ -356,44 +356,39 @@ function M.get_near_bracket_text()
   local line_table = B.string_split_char_to_table(line)
   local cur_col = vim.fn.getcurpos()[3]
   local cur_index = B.get_char_index_of_arr(cur_col, line_table)
+  local cur_char = line_table[cur_index]
+  local left_index = cur_index
+  local right_index = cur_index
+  for index, char in ipairs(line_table) do
+    if index < cur_index then
+      if char == '[' then
+        left_index = index
+      end
+    end
+    if index > cur_index then
+      if char == ']' then
+        right_index = index
+        break
+      end
+    end
+  end
+  if cur_char == ']' then
+    right_index = cur_index
+  elseif cur_char == '[' then
+    left_index = cur_index
+  end
   local temp = ''
-  for i, char in ipairs(line_table) do
-    if i >= cur_index then
+  for index, char in ipairs(line_table) do
+    if index > left_index and index < right_index then
       temp = temp .. char
     end
   end
-  norg = M.get_one_or_nil(temp)
-  if norg then
-    return norg
-  end
-  temp = ''
-  local left_index = 0
-  for i, char in ipairs(line_table) do
-    if i < cur_index and char == '[' then
-      left_index = i
-    end
-  end
-  local right_index = 0
-  for i, char in ipairs(line_table) do
-    if i >= left_index and char == ']' then
-      right_index = i
-      break
-    end
-  end
-  for i, char in ipairs(line_table) do
-    if i >= left_index and i <= right_index then
-      temp = temp .. char
-    end
-  end
-  norg = M.get_one_or_nil(temp)
-  if norg then
-    return norg
-  end
+  return temp
 end
 
 function M.create_or_jump()
   vim.cmd 'mes clear'
-  M.get_near_bracket_text()
+  print(M.get_near_bracket_text())
   B.set_timeout(100, function()
     vim.cmd [[call feedkeys(":\<c-u>mes\<cr>")]]
   end)
