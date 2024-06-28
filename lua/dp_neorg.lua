@@ -167,6 +167,11 @@ B.aucmd({ 'BufEnter', }, 'neorg.BufEnter', {
 function M.create_norg_file_and_open_do(arr)
   local dirman = require 'neorg'.modules.get_module 'core.dirman'
   local workspace_match = dirman.get_workspace_match()
+  local file = B.get_file(vim.loop.cwd(), vim.fn.join(arr, '\\')) .. '.norg'
+  if B.file_exists(file) then
+    B.jump_or_edit(file)
+    return
+  end
   dirman.create_file(vim.fn.join(arr, '/'), workspace_match, {
     no_open  = false,
     force    = false,
@@ -198,7 +203,7 @@ function M.create_journal_task_norg(cWORD)
     local link = string.format('~ [%s]{:$/journal/%s/%s/%s:}', cWORD, year, month, cWORD)
     local append = 1
     for _, line in ipairs(B.get_paragraph('$')) do
-      if B.is_in_str('[' .. cWORD .. ']', line) then
+      if B.is_in_str('%[' .. cWORD .. '%]', line) then
         append = nil
       end
     end
@@ -357,6 +362,7 @@ require 'which-key'.register {
   ['<leader>nhe'] = { function() M.norg2md() end, 'norg2md', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<c-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
+  ['<s-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<del>'] = { function() M.de_norg_link() end, 'de_norg_link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<tab>'] = { function() M.yank_rb_to_wxwork() end, 'yank_rb_to_wxwork', mode = { 'n', 'v', }, silent = true, },
 }
