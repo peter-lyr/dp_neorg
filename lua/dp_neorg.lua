@@ -32,6 +32,10 @@ M.patt_plan           = '20[%d][%d]%-[01][%d]%-[0123][%d]计划'
 
 M.quicklook_allow     = 1
 
+M.norg_create_in_dirs = {
+  '.norg',
+}
+
 require 'neorg'.setup {
   load = {
     ['core.defaults'] = {},
@@ -328,9 +332,6 @@ function M.yank_rb_to_wxwork()
   B.notify_info { 'copied to +', lines, }
 end
 
--- function M.get_near_bracket_text_do(text)
--- end
-
 function M.get_one_or_nil(text)
   local norg = B.get_text_in_bracket(text)
   if norg then
@@ -387,9 +388,23 @@ function M.get_near_bracket_text()
   return norg
 end
 
+function M.check_norg_if_exists(fname)
+  for _, dir in ipairs(M.norg_create_in_dirs) do
+    local file = B.get_file({vim.loop.cwd(), dir}, fname .. '.norg')
+    if B.file_exists(file) then
+      return file
+    end
+  end
+  return nil
+end
+
 function M.create_or_jump()
   vim.cmd 'mes clear'
-  print(M.get_near_bracket_text())
+  local fname = M.get_near_bracket_text()
+  if not fname then
+    return
+  end
+  print(M.check_norg_if_exists(fname))
   B.set_timeout(100, function()
     vim.cmd [[call feedkeys(":\<c-u>mes\<cr>")]]
   end)
