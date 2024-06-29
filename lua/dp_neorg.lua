@@ -339,8 +339,14 @@ function M.get_one_or_nil(text)
     -- NOTE: 这里也可能有多个
     -- 一个则直接返回
     local cnt = 0
-    for _ in string.gmatch(text, '%[([^%]]+)%]') do
+    for _ in string.gmatch(text, '%[[^%]]+%]') do
       cnt = cnt + 1
+    end
+    for _ in string.gmatch(text, '}%[[^%]]+%]') do
+      cnt = cnt - 1
+    end
+    for _ in string.gmatch(text, '%[[^%]]+%]{') do
+      cnt = cnt - 1
     end
     if cnt == 1 then
       return norg
@@ -381,7 +387,7 @@ function M.get_near_bracket_text()
   end
   local temp = ''
   for index, char in ipairs(line_table) do
-    if index >= left_index and index <= right_index then
+    if index >= left_index - 1 and index <= right_index + 1 then
       temp = temp .. char
     end
   end
