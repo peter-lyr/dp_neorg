@@ -6,8 +6,8 @@ local sta, B = pcall(require, 'dp_base')
 if not sta then return print('Dp_base is required!', debug.getinfo(1)['source']) end
 
 if B.check_plugins {
-  'folke/which-key.nvim',
-} then
+      'folke/which-key.nvim',
+    } then
   return
 end
 
@@ -33,7 +33,8 @@ M.patt_plan           = '20[%d][%d]%-[01][%d]%-[0123][%d]计划'
 M.quicklook_allow     = 1
 
 M.norg_create_in_dirs = {
-  '.norg',
+  '.rb|default', -- 日报
+  '.zj',         -- 总结
 }
 
 require 'neorg'.setup {
@@ -388,23 +389,96 @@ function M.get_near_bracket_text()
   return norg
 end
 
-function M.check_norg_if_exists(fname)
-  for _, dir in ipairs(M.norg_create_in_dirs) do
-    local file = B.get_file({vim.loop.cwd(), dir}, fname .. '.norg')
-    if B.file_exists(file) then
-      return file
-    end
+function M.get_dir(dir)
+  local temp = string.match(dir, '([^|]+)|default')
+  if temp then
+    dir = temp
   end
-  return nil
+  return dir
 end
 
-function M.create_or_jump()
+function M.check_norg_if_exists(fname)
+  local files = {}
+  local first_exist = nil
+  for i, dir in ipairs(M.norg_create_in_dirs) do
+    dir = M.get_dir(dir)
+    local file = B.get_file({ vim.loop.cwd(), dir, }, fname .. '.norg')
+    if B.file_exists(file) then
+      files[#files + 1] = file
+      if i == 1 then
+        first_exist = 1
+      end
+    end
+  end
+  return first_exist, files
+end
+
+function M.sel_create_in_other_dirs(fname)
+  local temp = vim.deepcopy(M.norg_create_in_dirs)
+  table.remove(temp, 1)
+  if #temp == 1 then
+    M.create_norg_file_and_open_do { temp[1], fname, }
+  else
+    B.ui_sel(temp, 'create norg in which dir', function(dir)
+      if dir then
+        M.create_norg_file_and_open_do { dir, fname, }
+      end
+    end)
+  end
+end
+
+function M.create_or_jump(open_default, create_force)
   vim.cmd 'mes clear'
   local fname = M.get_near_bracket_text()
   if not fname then
     return
   end
-  print(M.check_norg_if_exists(fname))
+  if not create_force then
+    create_force = nil
+  end
+  if create_force then
+    B.ui_sel(M.norg_create_in_dirs, 'create norg in which dir', function(dir)
+      if dir then
+        dir = M.get_dir(dir)
+        M.create_norg_file_and_open_do { dir, fname, }
+      end
+    end)
+    return
+  end
+  if not open_default then
+    open_default = 'default'
+  end
+  local first_exist, files = M.check_norg_if_exists(fname)
+  if #files == 0 then
+    if open_default == 'default' then
+      M.create_norg_file_and_open_do { M.get_dir(M.norg_create_in_dirs[1]), fname, }
+    else
+      M.sel_create_in_other_dirs(fname)
+    end
+  else
+    if open_default == 'default' then
+      if first_exist then
+        B.jump_or_edit(files[1])
+      else
+        M.create_norg_file_and_open_do { M.get_dir(M.norg_create_in_dirs[1]), fname, }
+      end
+    else
+      if first_exist then
+        table.remove(files, 1)
+      end
+      if #files == 0 then
+        M.sel_create_in_other_dirs(fname)
+      elseif #files == 1 then
+        B.jump_or_edit(files[1])
+      else
+        B.ui_sel(files, 'open which norg', function(file)
+          if file then
+            B.jump_or_edit(file)
+          end
+        end)
+      end
+    end
+  end
   B.set_timeout(100, function()
     vim.cmd [[call feedkeys(":\<c-u>mes\<cr>")]]
   end)
