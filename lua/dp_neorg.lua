@@ -379,11 +379,12 @@ function M.get_near_bracket_text()
   end
   local temp = ''
   for index, char in ipairs(line_table) do
-    if index > left_index and index < right_index then
+    if index >= left_index and index <= right_index then
       temp = temp .. char
     end
   end
-  return temp
+  norg = M.get_one_or_nil(temp)
+  return norg
 end
 
 function M.create_or_jump()
