@@ -428,7 +428,6 @@ function M.sel_create_in_other_dirs(fname)
 end
 
 function M.create_or_jump(open_default, create_force)
-  vim.cmd 'mes clear'
   local fname = M.get_near_bracket_text()
   if not fname then
     return
@@ -479,9 +478,6 @@ function M.create_or_jump(open_default, create_force)
       end
     end
   end
-  B.set_timeout(100, function()
-    vim.cmd [[call feedkeys(":\<c-u>mes\<cr>")]]
-  end)
 end
 
 function M.norg2md(open_preview)
