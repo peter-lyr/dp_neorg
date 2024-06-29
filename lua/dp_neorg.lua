@@ -505,6 +505,16 @@ function M.norg_toc_split()
   vim.cmd 'set winfixwidth'
 end
 
+function M.create_same_dir_as_norg()
+  local file = B.rep(B.buf_get_name())
+  if not M.is_in_norg_fts(file) then
+    return
+  end
+  local dirname = vim.fn.fnamemodify(file, ':p:r')
+  B.getcreate_dir(dirname)
+  require 'dp_nvimtree'.open(dirname)
+end
+
 require 'which-key'.register {
   ['<leader>nw'] = { '<cmd>Neorg workspace work<cr>', 'Neorg workspace work', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nl'] = { '<cmd>Neorg workspace life<cr>', 'Neorg workspace life', mode = { 'n', 'v', }, silent = true, },
@@ -528,6 +538,7 @@ require 'which-key'.register {
   ['<leader>n<del>'] = { function() M.de_norg_link() end, 'de_norg_link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<tab>'] = { function() M.yank_rb_to_wxwork() end, 'yank_rb_to_wxwork', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<c-o>'] = { function() M.norg_toc_split() end, 'norg_toc_split', mode = { 'n', 'v', }, silent = true, },
+  ['<leader>n<c-cr>'] = { function() M.create_same_dir_as_norg() end, 'create_same_dir_as_norg', mode = { 'n', 'v', }, silent = true, },
 }
 
 return M
