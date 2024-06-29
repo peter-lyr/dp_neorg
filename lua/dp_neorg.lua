@@ -233,29 +233,29 @@ function M.create_cur_dir_norg(cWORD)
   M.create_norg_file_and_open_do(paths)
 end
 
-function M.create_norg_file_and_open(journal)
-  local cWORD = vim.fn.expand '<cWORD>'
-  local temp = string.match(cWORD, '%[(.+)%]')
-  M.anchor = nil
-  if temp then
-    M.anchor = 1
-    cWORD = temp
-  end
-  local res = B.not_allow_in_file_name(cWORD)
-  if res then
-    B.print('not_allow_in_file_name: %s', res)
-    return
-  end
-  if string.match(cWORD, ':}%[') then
-    vim.cmd [[call feedkeys("\<cr>")]]
-    return
-  end
-  if not journal and (not string.match(vim.fn.join(B.get_paragraph(), '\n'), M.patt_plan) or not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*')) then
-    M.create_cur_dir_norg(cWORD)
-    return
-  end
-  M.create_journal_task_norg(cWORD)
-end
+-- function M.create_norg_file_and_open(journal)
+--   local cWORD = vim.fn.expand '<cWORD>'
+--   local temp = string.match(cWORD, '%[(.+)%]')
+--   M.anchor = nil
+--   if temp then
+--     M.anchor = 1
+--     cWORD = temp
+--   end
+--   local res = B.not_allow_in_file_name(cWORD)
+--   if res then
+--     B.print('not_allow_in_file_name: %s', res)
+--     return
+--   end
+--   if string.match(cWORD, ':}%[') then
+--     vim.cmd [[call feedkeys("\<cr>")]]
+--     return
+--   end
+--   if not journal and (not string.match(vim.fn.join(B.get_paragraph(), '\n'), M.patt_plan) or not string.match(cWORD, '([^,]+,[^,]+,[^,]+).*')) then
+--     M.create_cur_dir_norg(cWORD)
+--     return
+--   end
+--   M.create_journal_task_norg(cWORD)
+-- end
 
 function M.de_norg_link()
   local paragraph = B.get_paragraph()
@@ -523,8 +523,8 @@ require 'which-key'.register {
   ['<leader>nh'] = { name = 'neorg more', },
   ['<leader>nhq'] = { function() M.quicklook_toggle() end, 'quicklook_toggle', mode = { 'n', 'v', }, silent = true, },
   ['<leader>nhe'] = { function() M.norg2md() end, 'norg2md', mode = { 'n', 'v', }, silent = true, },
-  ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
-  ['<leader>n<c-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
+  -- ['<leader>n<cr>'] = { function() M.create_norg_file_and_open() end, 'create_norg_file_and_open', mode = { 'n', 'v', }, silent = true, },
+  -- ['<leader>n<c-cr>'] = { function() M.create_norg_file_and_open(1) end, 'create_norg_file_and_open journal', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<del>'] = { function() M.de_norg_link() end, 'de_norg_link', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<tab>'] = { function() M.yank_rb_to_wxwork() end, 'yank_rb_to_wxwork', mode = { 'n', 'v', }, silent = true, },
   ['<leader>n<c-o>'] = { function() M.norg_toc_split() end, 'norg_toc_split', mode = { 'n', 'v', }, silent = true, },
