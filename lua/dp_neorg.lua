@@ -32,6 +32,9 @@ M.patt_plan           = '20[%d][%d]%-[01][%d]%-[0123][%d]计划'
 
 M.quicklook_allow     = 1
 
+M.max_text_fsize      = 1024 * 1024
+M.norg_opend          = nil
+
 M.norg_create_in_dirs = {
   '.rb|default', -- 日报
   '.zj',         -- 总结
@@ -139,7 +142,13 @@ B.aucmd({ 'CursorMoved', 'CursorMovedI', }, 'neorg.CursorMoved', {
 })
 
 B.aucmd({ 'BufReadPre', }, 'neorg.BufReadPre', {
-  callback = function()
+  callback = function(ev)
+    if M.norg_opend then
+      local fsize = vim.fn.getfsize(ev.file)
+      if fsize > M.max_text_fsize then
+        B.system_run('start silent', 'nvim-qt.exe "%s"', ev.file)
+      end
+    end
     M.start_from_norg = 0
     if B.is(M.last_file) then
       if M.is_in_norg_fts(M.last_file) then
@@ -152,8 +161,16 @@ B.aucmd({ 'BufReadPre', }, 'neorg.BufReadPre', {
 B.aucmd({ 'BufReadPost', }, 'neorg.BufReadPost', {
   callback = function(ev)
     if M.start_from_norg == 1 then
-      if not M.is_in_norg_fts(ev.file) and B.is_detected_as_bin(ev.file) then
-        B.system_run('start silent', ev.file)
+      if not M.is_in_norg_fts(ev.file) then
+        if B.is_detected_as_bin(ev.file) then
+          B.system_run('start silent', ev.file)
+          vim.cmd('Bwipeout' .. ev.buf)
+        end
+      end
+    end
+    if M.norg_opend then
+      local fsize = vim.fn.getfsize(ev.file)
+      if fsize > M.max_text_fsize then
         vim.cmd('Bwipeout' .. ev.buf)
       end
     end
@@ -163,7 +180,9 @@ B.aucmd({ 'BufReadPost', }, 'neorg.BufReadPost', {
 B.aucmd({ 'BufEnter', }, 'neorg.BufEnter', {
   callback = function(ev)
     M.last_file = B.rep(ev.file)
-    if not B.is_file(M.last_file) then
+    if B.is_file(M.last_file) then
+      M.norg_opend = 1
+    else
       M.last_file = ''
     end
   end,
