@@ -180,7 +180,7 @@ B.aucmd({ 'BufReadPost', }, 'neorg.BufReadPost', {
 B.aucmd({ 'BufEnter', }, 'neorg.BufEnter', {
   callback = function(ev)
     M.last_file = B.rep(ev.file)
-    if B.is_file(M.last_file) then
+    if M.is_in_norg_fts(M.last_file) then
       M.norg_opend = 1
     else
       M.last_file = ''
