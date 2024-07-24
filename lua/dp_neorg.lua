@@ -535,6 +535,10 @@ function M.create_same_dir_as_norg()
   local a_norg = B.getcreate_file(test, 'a.norg')
   B.jump_or_edit(a_norg)
   require 'dp_nvimtree'.open(test)
+  local _git = B.get_dir({test, '.git'})
+  if not B.is_dir(_git) then
+    require 'dp_git.push'.just_init_do(test)
+  end
 end
 
 require 'which-key'.register {
