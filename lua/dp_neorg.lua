@@ -531,8 +531,10 @@ function M.create_same_dir_as_norg()
   end
   local dirname = vim.fn.fnamemodify(file, ':p:r')
   B.getcreate_dir(dirname)
-  local a_norg = B.getcreate_file({dirname, 'test'}, 'a.norg')
+  local test = B.getcreate_dir({dirname, 'test'})
+  local a_norg = B.getcreate_file(test, 'a.norg')
   B.jump_or_edit(a_norg)
+  require 'dp_nvimtree'.open(test)
 end
 
 require 'which-key'.register {
