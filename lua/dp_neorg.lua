@@ -47,7 +47,8 @@ require 'neorg'.setup {
     ['core.esupports.metagen'] = {
       config = {
         update_date = false,
-        type = 'empty',
+        -- type = 'empty',
+        type = 'none',
         author = 'peter-lyr',
         timezone = 'implicit-local',
       },
