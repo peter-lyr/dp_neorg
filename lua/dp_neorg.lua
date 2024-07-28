@@ -521,7 +521,7 @@ function M.norg2md(open_preview)
 end
 
 function M.norg_toc_split()
-  vim.cmd 'Neorg toc split'
+  vim.cmd 'Neorg toc right'
   vim.cmd 'set winfixwidth'
 end
 
